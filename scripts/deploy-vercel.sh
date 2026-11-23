@@ -17,6 +17,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   key="${line%%=*}"
   value="${line#*=}"
   if [ "$key" = "APP_URL" ]; then value="https://$DOMAIN"; fi
+  if [ -z "$value" ]; then continue; fi
   "${VERCEL[@]}" env rm "$key" production --yes --token "$VERCEL_TOKEN" >/dev/null 2>&1 || true
   printf '%s\n' "$value" | "${VERCEL[@]}" env add "$key" production --token "$VERCEL_TOKEN" >/dev/null
   echo "   $key"
