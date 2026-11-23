@@ -1,4 +1,4 @@
-# deps
+# dependencies
 node_modules/
 .pnpm-store/
 
@@ -7,13 +7,23 @@ node_modules/
 out/
 build/
 dist/
+next-env.d.ts
+*.tsbuildinfo
 
-# env & secrets
+# env & secrets (keep the template)
 .env
 .env*.local
 .env.local
+.env.*.local
+!.env.example
 *.key
 *.pem
+
+# local data
+.data/
+*.db
+*.sqlite
+*.sqlite3
 
 # supabase
 .supabase/
@@ -22,15 +32,19 @@ dist/
 *.log
 npm-debug.log*
 pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # os / editor
 .DS_Store
 .idea/
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 *.swp
 
 # misc
 coverage/
 .turbo/
 .vercel/
+.pnp.*
