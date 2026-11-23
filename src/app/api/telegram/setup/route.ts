@@ -1,7 +1,22 @@
 import { NextResponse } from "next/server";
-import { getMe, setWebhook } from "@/core/telegram/api";
+import { getMe, getWebhookInfo, setWebhook } from "@/core/telegram/api";
 import { errorBody } from "@/core/errors";
 import { env } from "@/lib/env";
+
+/** Authenticated read-only status: what Telegram thinks the webhook is. */
+export async function GET() {
+  try {
+    const [bot, webhook] = await Promise.all([getMe(), getWebhookInfo()]);
+    return NextResponse.json({
+      ok: webhook.url.endsWith("/api/telegram") && !webhook.last_error_message,
+      bot,
+      webhook,
+    });
+  } catch (err) {
+    const { status, body } = errorBody(err);
+    return NextResponse.json(body, { status });
+  }
+}
 
 /** Authenticated helper: register the Telegram webhook for this deployment. */
 export async function POST() {

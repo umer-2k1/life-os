@@ -57,6 +57,20 @@ export async function getMe(): Promise<{ id: number; username?: string }> {
   return call("getMe");
 }
 
+export type WebhookInfo = {
+  url: string;
+  has_custom_certificate: boolean;
+  pending_update_count: number;
+  last_error_date?: number;
+  last_error_message?: string;
+  max_connections?: number;
+  ip_address?: string;
+};
+
+export async function getWebhookInfo(): Promise<WebhookInfo> {
+  return call("getWebhookInfo");
+}
+
 export async function downloadFile(fileId: string): Promise<{ buffer: Buffer; filename: string }> {
   const file = await call<{ file_path: string }>("getFile", { file_id: fileId });
   const res = await fetch(`${API}/file/bot${token()}/${file.file_path}`, {
