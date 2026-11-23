@@ -23,21 +23,31 @@ This is **not** a to-do app and **not** a pretty vision board. It is a system th
 
 ## Status
 
-🟡 **Planning / specs** — no application code yet. This repo currently holds the full design in [`docs/`](docs/).
+🟢 **Built and running** — dashboard, dreams, activity board, AI scoring, Telegram loop, reports, MCP server, PWA.
+
+```bash
+pnpm install
+pnpm db:migrate
+pnpm db:seed
+pnpm dev
+```
+
+Login with your 6-digit PIN (default `252525`, change it in Settings).
 
 | Area | Decision |
 |------|----------|
-| Framework | Next.js (App Router) + Tailwind + shadcn/ui |
-| Database / Auth / Storage | Supabase (Postgres + Auth + Storage) |
-| ORM | TypeORM (entities in `docs/reference/entities.ts`) |
-| AI | OpenRouter (free models) → Groq fallback → optional Grok/DeepSeek keys, via LiteLLM/LangChain |
+| Framework | Next.js 16 (App Router) + Tailwind 4 + shadcn-style primitives |
+| Database | Supabase Postgres via TypeORM (migrations in `src/db/migrations`) |
+| Auth | Single-user 6-digit PIN (scrypt hash + signed cookie) |
+| Images | Cloudinary (Supabase Storage fallback) |
+| AI | Groq → OpenRouter free models → optional Grok/DeepSeek, with offline heuristic fallback |
 | Voice → text | Groq Whisper |
-| Daily check-in | Channel-agnostic — ask & answer via Telegram (voice/text), MCP (any connected/cloud agent), or Web/PWA; first answer closes it everywhere |
-| Scheduler (6-hour re-ask) | GitHub Actions cron → API route (Vercel free cron can't do sub-daily) |
-| Email reports | Resend |
-| MCP | Remote MCP server in the same TypeScript codebase, shared data layer |
-| Hosting | Vercel (free/Hobby) + custom domain |
-| PWA / Push | installable PWA + web push (where supported) + Telegram as the reliable channel |
+| Daily check-in | Channel-agnostic — Telegram, MCP, or Web; first answer closes it everywhere |
+| Scheduler | GitHub Actions hourly → `/api/cron/check-ins` |
+| Email reports | Resend + PDF |
+| MCP | Remote Streamable HTTP at `/api/mcp` (29 tools) |
+| Hosting | Vercel + custom domain |
+| PWA | Installable, offline shell |
 
 ---
 
@@ -59,6 +69,10 @@ Read in order:
 12. [`docs/11-api-contract.md`](docs/11-api-contract.md) — API routes & payloads
 13. [`docs/12-ai-prompts.md`](docs/12-ai-prompts.md) — AI prompt templates + JSON output schemas
 14. [`docs/reference/entities.ts`](docs/reference/entities.ts) — **TypeORM** entities (schema source of truth)
+15. [`docs/13-env-keys.md`](docs/13-env-keys.md) — every key, and how to get it
+16. [`docs/14-handoff.md`](docs/14-handoff.md) — what is built, what is left
+17. [`docs/15-deploy.md`](docs/15-deploy.md) — Vercel, webhook, cron, MCP
+18. [`docs/16-usage.md`](docs/16-usage.md) — how to actually use it daily
 
 > 🤖 **Implementing agent:** start at [`AGENTS.md`](AGENTS.md) — stack, conventions, build order, and per-milestone done-criteria.
 

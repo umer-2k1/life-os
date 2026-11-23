@@ -1,13 +1,13 @@
 # 13 · Keys you need (and how to get each one)
 
 Copy `.env.example` → `.env.local` and fill it in. Everything works locally with
-**only** `DATABASE_URL` + `APP_PASSWORD` + `AUTH_SECRET`; the rest unlocks
+**only** `DATABASE_URL` + `AUTH_SECRET`; the rest unlocks
 features progressively.
 
 | Variable | Required? | Unlocks |
 |---|---|---|
 | `DATABASE_URL` | ✅ yes | Everything (dreams, logs, scores) |
-| `APP_PASSWORD` + `AUTH_SECRET` | ✅ yes | Login gate |
+| `AUTH_SECRET` | ✅ yes | Signs the PIN session cookie (PIN itself is hashed in the DB) |
 | `OPENROUTER_API_KEY` | ⭐ strongly recommended | AI parsing, scoring, recap, reports |
 | `GROQ_API_KEY` | ⭐ recommended | Fallback AI + **voice → text** |
 | `TELEGRAM_BOT_TOKEN` | for the daily bot | Auto daily ask, voice notes |
@@ -35,12 +35,14 @@ features progressively.
 
 No Supabase Auth setup needed — Life OS uses its own single-password gate.
 
-## 2. App password + auth secret (10 seconds)
+## 2. Auth secret (10 seconds)
 
 ```bash
 openssl rand -base64 48   # → AUTH_SECRET
 ```
-Set `APP_PASSWORD` to whatever you want to type on the login screen.
+
+The login PIN is **not** an env var. First run seeds `252525`; change it in
+Settings → Security (scrypt-hashed in Postgres).
 
 ## 3. OpenRouter (free AI models — 1 minute)
 
@@ -83,15 +85,20 @@ Set `APP_PASSWORD` to whatever you want to type on the login screen.
    (e.g. `Life OS <reports@yourdomain.com>`). For quick tests
    `onboarding@resend.dev` works but can only email your own address.
 
-## 8. Supabase Storage (optional image uploads)
+## 8. Cloudinary (image uploads — used by this build)
 
-1. Supabase → **Storage** → **New bucket** → name `lifeos` → toggle **Public**.
-2. Project Settings → **API** → copy:
-   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
-   - `anon` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `service_role` key → `SUPABASE_SERVICE_ROLE_KEY` (server-only!)
+1. <https://cloudinary.com> → sign up (free tier).
+2. Dashboard → **Product Environment Credentials**.
+3. Copy:
+   - Cloud name → `CLOUDINARY_CLOUD_NAME`
+   - API Key → `CLOUDINARY_API_KEY`
+   - API Secret → `CLOUDINARY_API_SECRET` (server-only)
 
-Without these, uploads are hidden and you can paste image URLs instead.
+Images are uploaded to the `life-os/` folder and stored as secure URLs.
+
+**Supabase Storage is an optional fallback** (`NEXT_PUBLIC_SUPABASE_URL`,
+`SUPABASE_SERVICE_ROLE_KEY`, public bucket `lifeos`). Without either provider,
+uploads are disabled and you can paste image URLs.
 
 ## 9. MCP token (optional)
 
@@ -106,7 +113,6 @@ Without these, uploads are hidden and you can paste image URLs instead.
 ```bash
 DATABASE_URL=postgresql://lifeos:lifeos@localhost:5433/lifeos
 DATABASE_SSL=false
-APP_PASSWORD=your-password
 AUTH_SECRET=<openssl rand -base64 48>
 ```
 

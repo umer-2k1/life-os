@@ -14,13 +14,19 @@
 ## Env vars (planned `.env.local`)
 ```bash
 # Supabase
+# Cloudinary (image uploads)
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+# Supabase Storage (optional fallback)
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=                 # pooled Postgres connection (Drizzle)
 
 # Auth
-AUTH_SECRET=                  # app session / single-user password hash
+AUTH_SECRET=                  # app session cookie signing (PIN lives in the DB)
 
 # AI (free-first; user can add more in Settings UI too)
 OPENROUTER_API_KEY=
