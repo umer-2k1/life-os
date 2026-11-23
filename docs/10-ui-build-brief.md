@@ -2,7 +2,7 @@
 
 Very detailed, screen-by-screen instructions to build the real UI. Pair with [`07-design-system.md`](07-design-system.md) (tokens, type, color) and the interactive demo (dark-luxury reference for feel, layout, and motion). This brief defines **what to build**, **states**, **interactions**, and **data bindings** — not code.
 
-> **Reference demo:** a clickable mockup of Dashboard / Dreams / Activity / Reports exists as an Artifact. Match its *feel* (dark luxury, gold restraint, Fraunces display + Inter UI, calm motion), not its sample data.
+> ✅ **Reference demo (LOCKED):** [`reference/ui-gold-luxury-demo.html`](reference/ui-gold-luxury-demo.html) — open it in a browser. It's the approved visual source of truth: match its *feel* (dark luxury, gold restraint, Fraunces display + Inter UI, calm motion), not its sample data. See [`reference/README.md`](reference/README.md).
 
 ---
 

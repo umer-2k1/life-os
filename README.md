@@ -56,7 +56,7 @@ Read in order:
 10. [`docs/09-setup.md`](docs/09-setup.md) — env vars & running it
 11. [`docs/10-ui-build-brief.md`](docs/10-ui-build-brief.md) — developer-ready, screen-by-screen UI instructions
 
-> **Visual reference:** an interactive dark-luxury demo (Dashboard / Dreams / Activity / Reports, sample data) accompanies these specs — match its *feel*, not its data.
+> ✅ **Design LOCKED — "Gold Luxury" (dark).** Visual source of truth: [`docs/reference/ui-gold-luxury-demo.html`](docs/reference/ui-gold-luxury-demo.html) (open in a browser) + [`docs/reference/README.md`](docs/reference/README.md). The implementing agent builds the Next.js app to match this demo's feel — not its sample data.
 
 ---
 

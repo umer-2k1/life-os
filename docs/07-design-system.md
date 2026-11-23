@@ -1,5 +1,7 @@
 # 07 · Design System
 
+> ✅ **LOCKED direction: Gold Luxury.** Visual source of truth: [`reference/ui-gold-luxury-demo.html`](reference/ui-gold-luxury-demo.html). Build to match its feel.
+
 Dark luxury. Premium, minimal, emotional. A digital vision board — never a corporate PM tool.
 
 ## Mood
