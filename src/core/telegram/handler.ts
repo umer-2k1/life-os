@@ -94,14 +94,22 @@ export async function handleUpdate(update: Update): Promise<void> {
     }
 
     await sendMessage(chatId, "Scoring it…");
-    const result = await logDay({ text: raw, input_kind: kind });
+    const result = await logDay({ text: raw, input_kind: kind, mode: "append" });
+    if (result.skipped) {
+      await sendMessage(chatId, result.message ?? "That isn't an update. Try again.");
+      return;
+    }
     const streak = await getStreak();
     await sendMessage(chatId, recapText(result.log, streak.current));
   } catch (err) {
     console.error("[telegram]", err);
+    const voiceFailed =
+      message.voice || message.audio || (err instanceof Error && /transcription/i.test(err.message));
     await sendMessage(
       chatId,
-      "Couldn't process that. Try again, or send text instead of voice.",
+      voiceFailed
+        ? "I couldn't transcribe that voice note. Send the same update as text — voice is being fixed."
+        : "Couldn't process that. Try again in a minute.",
     );
   }
 }

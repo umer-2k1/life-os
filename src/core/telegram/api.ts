@@ -91,10 +91,14 @@ export async function transcribeAudio(
   const key = env().GROQ_API_KEY;
   if (!key) throw new AppError("BAD_REQUEST", "GROQ_API_KEY is required for voice notes.");
 
+  // Groq rejects Telegram's ".oga"; send it as OGG explicitly.
+  const supported = /\.(flac|mp3|mp4|mpeg|mpga|m4a|ogg|opus|wav|webm)$/i.test(filename);
+  const safeName = supported ? filename.replace(/\.oga$/i, ".ogg") : "voice.ogg";
+
   const form = new FormData();
   form.set("model", "whisper-large-v3");
   form.set("response_format", "text");
-  form.set("file", new Blob([new Uint8Array(buffer)]), filename);
+  form.set("file", new Blob([new Uint8Array(buffer)], { type: "audio/ogg" }), safeName);
 
   const res = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
     method: "POST",

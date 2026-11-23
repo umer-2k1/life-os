@@ -10,7 +10,12 @@ import {
 import { env } from "@/lib/env";
 import { todayISO } from "@/lib/dates";
 import { clamp } from "@/lib/utils";
-import { heuristicParse, type ParsedActivity } from "./ai/heuristic";
+import {
+  classifyRelevance,
+  estimateWasteDays,
+  heuristicParse,
+  type ParsedActivity,
+} from "./ai/heuristic";
 import { aiParseUpdate, aiScoreDay } from "./ai";
 import { heuristicNextAction, listDreams, touchDream } from "./dreams";
 import { AppError } from "./errors";
@@ -110,7 +115,24 @@ async function previousScores(ds: Awaited<ReturnType<typeof getDataSource>>, bef
   return rows.map((r) => r.score).reverse();
 }
 
-export type LogDayResult = DayView & { engine: "ai" | "heuristic" };
+export type LogDayResult = DayView & {
+  engine: "ai" | "heuristic";
+  skipped?: boolean;
+  message?: string;
+};
+
+const GREETING = /^(hi|hey|hello|yo|salam|assalam|test|testing|ok|okay)\b/i;
+
+/** Greetings, tests and "first message" are not daily updates. */
+export function isNonUpdate(text: string): boolean {
+  const t = text.trim().toLowerCase();
+  const words = t.split(/\s+/).filter(Boolean);
+  if (words.length <= 3 && GREETING.test(t)) return true;
+  if (/first message|this is my life ?os|testing the bot|just saying hi/.test(t) && words.length <= 14) {
+    return true;
+  }
+  return false;
+}
 
 /**
  * The single entry point every channel calls: web, Telegram, MCP, cron follow-ups.
@@ -120,6 +142,8 @@ export async function logDay(input: {
   text: string;
   date?: string;
   input_kind?: InputKind;
+  /** Telegram/chat appends; the web "re-log day" replaces. */
+  mode?: "replace" | "append";
 }): Promise<LogDayResult> {
   const ds = await getDataSource();
   const text = input.text.trim();
@@ -127,6 +151,16 @@ export async function logDay(input: {
 
   const log = await ensureDailyLog(input.date);
   const dreams = await listDreams({ status: "active" });
+
+  if (isNonUpdate(text)) {
+    return {
+      ...(await getDay(log.log_date)),
+      engine: "heuristic",
+      skipped: true,
+      message:
+        "That isn't an update. Tell me what you actually did toward the dreams — one real thing is enough. Voice or text.",
+    };
+  }
 
   // AI when a key is configured; heuristic keeps the loop alive offline.
   let parsed = heuristicParse(text, dreams);
@@ -137,9 +171,40 @@ export async function logDay(input: {
     console.warn("[ai:parse] fallback to heuristic:", err instanceof Error ? err.message : err);
   }
 
+  // Consensus: keyword rules and the model must not disagree on what counts.
+  parsed = {
+    ...parsed,
+    activities: parsed.activities.map((a) => {
+      const rule = classifyRelevance(a.text);
+      const relevance =
+        rule === "waste" || a.relevance === "waste"
+          ? "waste"
+          : rule === "on_track" || a.relevance === "on_track"
+            ? "on_track"
+            : "neutral";
+      const days = relevance === "waste" ? estimateWasteDays(a.text) || a.time_cost_days : 0;
+      return {
+        ...a,
+        relevance,
+        time_cost_days: days,
+        score_delta:
+          relevance === "waste"
+            ? Math.min(a.score_delta, -10)
+            : relevance === "on_track"
+              ? Math.max(a.score_delta, 8)
+              : a.score_delta,
+      };
+    }),
+  };
+
+  const mode = input.mode ?? "append";
   const activityRepo = ds.getRepository(Activity);
-  await activityRepo.delete({ daily_log_id: log.id });
-  await ds.getRepository(Reflection).delete({ daily_log_id: log.id });
+  const existing =
+    mode === "append" ? await activityRepo.find({ where: { daily_log_id: log.id } }) : [];
+  if (mode === "replace") {
+    await activityRepo.delete({ daily_log_id: log.id });
+    await ds.getRepository(Reflection).delete({ daily_log_id: log.id });
+  }
 
   const rows: Activity[] = [];
   for (const item of parsed.activities) {
@@ -160,20 +225,23 @@ export async function logDay(input: {
     if (dreamId) await touchDream(dreamId);
   }
 
+  const allRows = [...existing, ...rows];
   const streak = await getStreak();
-  let score = computeDailyScore(rows, streak.current);
-  let bullets = buildBullets(rows, dreams);
+  const deterministic = computeDailyScore(allRows, streak.current);
+  let score = deterministic;
+  let bullets = buildBullets(allRows, dreams);
   let trajectory = trajectoryNote(score, streak.current, []);
   let nextAction: string | null = null;
   let engine = parsed.engine;
-  const points = totalPoints(rows, true);
+  const points = totalPoints(allRows, true);
   const prev = await previousScores(ds, log.log_date);
   trajectory = trajectoryNote(score, streak.current, prev);
 
   try {
-    const aiScore = await aiScoreDay(rows, dreams, streak.current, prev);
+    const aiScore = await aiScoreDay(allRows, dreams, streak.current, prev);
     if (aiScore) {
-      score = aiScore.score;
+      // Anchor on the deterministic score; the model only nudges it.
+      score = Math.round(deterministic * 0.7 + aiScore.score * 0.3);
       bullets = aiScore.bullets;
       trajectory = aiScore.trajectory;
       nextAction = aiScore.next;
@@ -181,6 +249,25 @@ export async function logDay(input: {
     }
   } catch (err) {
     console.warn("[ai:score] fallback:", err instanceof Error ? err.message : err);
+  }
+
+  // Safety net: never let the model award a good day with zero on-track work.
+  const onTrackCount = allRows.filter((a) => a.relevance === "on_track").length;
+  const wasteDaysTotal = allRows.reduce((sum, a) => sum + Number(a.time_cost_days ?? 0), 0);
+  if (onTrackCount === 0) {
+    score = Math.min(score, wasteDaysTotal > 0 ? 22 : 30);
+    bullets = buildBullets(allRows, dreams);
+    trajectory = "No on-track work today. That is the whole report.";
+  } else if (wasteDaysTotal >= 2) {
+    score = Math.min(score, 65);
+  }
+
+  const fallbackDream =
+    allRows.find((a) => a.dream_id)?.dream_id
+      ? dreams.find((d) => d.id === allRows.find((a) => a.dream_id)!.dream_id)?.title
+      : dreams[0]?.title;
+  if (fallbackDream) {
+    bullets = bullets.map((b) => b.replace(/<none>/gi, fallbackDream));
   }
 
   const openDream = dreams
@@ -191,7 +278,8 @@ export async function logDay(input: {
       return at - bt;
     })[0];
 
-  log.raw_input = log.raw_input ? `${log.raw_input}\n${text}` : text;
+  if (mode === "replace") log.raw_input = text;
+  else log.raw_input = log.raw_input ? `${log.raw_input}\n${text}` : text;
   log.input_kind = input.input_kind ?? "web";
   log.score = score;
   log.summary_bullets = bullets;

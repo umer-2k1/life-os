@@ -35,10 +35,16 @@ export function scorePrompt(
     days: a.time_cost_days,
     dream: dreams.find((d) => d.id === a.dream_id)?.title ?? null,
   }));
-  return `Today's activities: ${JSON.stringify(compact)}. Current streak: ${streak}. Recent scores: ${JSON.stringify(
+  return `Today's activities: ${JSON.stringify(compact)}. Current streak: ${streak}. Recent scores (context only — do NOT copy them): ${JSON.stringify(
     recent,
   )}.
-On-track work and consistency raise the score; waste lowers it and must be priced in days added. Output today's score 0-100 and a recap of max 5 bullets (prefix each with 🟢, 🟡 or 🔴; for waste include "≈ +N days to <Dream>"). One single most important next action, short.
+Rules:
+- The score MUST be derived from TODAY's activities, never from the recent average.
+- 0 on-track activities → score must be 0-30.
+- Wrong: a greeting, "test", "hello", or "first message" is NOT an activity. If that is all there is, score 0-10 and say "No real update".
+- On-track work raises the score; waste lowers it and must be priced in days added.
+- Bullets must describe the actual activities, max 5, prefix 🟢 / 🟡 / 🔴; waste bullets include "≈ +N days to <Dream>".
+- One single most important next action, short.
 JSON shape: {"score":number,"summary_bullets":["..."],"trajectory_note":"short","next_action":"one concrete action"}`;
 }
 

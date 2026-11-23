@@ -30,7 +30,7 @@ export async function logForDateAction(formData: FormData): Promise<void> {
   const text = String(formData.get("text") ?? "").trim();
   const date = String(formData.get("date") ?? "") || undefined;
   if (!text) return;
-  await logDay({ text, date, input_kind: "web" });
+  await logDay({ text, date, input_kind: "web", mode: "replace" });
   revalidatePath("/activity");
   revalidatePath("/");
 }

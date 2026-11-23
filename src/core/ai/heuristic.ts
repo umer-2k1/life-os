@@ -135,11 +135,16 @@ function matchDream(text: string, dreams: Dream[]): Dream | null {
   );
 }
 
-function classify(text: string): Relevance {
+export function classifyRelevance(text: string): Relevance {
   const lower = text.toLowerCase();
   if (WASTE.some((w) => lower.includes(w))) return "waste";
   if (ON_TRACK.some((w) => lower.includes(w))) return "on_track";
   return "neutral";
+}
+
+export function estimateWasteDays(text: string): number {
+  const hours = hoursFrom(text);
+  return hours > 0 ? Math.round(hours * 0.7 * 10) / 10 : 0;
 }
 
 /**
@@ -149,7 +154,7 @@ function classify(text: string): Relevance {
 export function heuristicParse(raw: string, dreams: Dream[]): ParsedUpdate {
   const chunks = splitActivities(raw).slice(0, 8);
   const activities: ParsedActivity[] = chunks.map((chunk) => {
-    const relevance = classify(chunk);
+    const relevance = classifyRelevance(chunk);
     const dream = matchDream(chunk, dreams);
     const hours = hoursFrom(chunk);
     const words = chunk.split(/\s+/);
