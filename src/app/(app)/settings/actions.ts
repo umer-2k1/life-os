@@ -4,10 +4,12 @@ import { revalidatePath } from "next/cache";
 import { changePin } from "@/core/security";
 import { updateProfile } from "@/core/profile";
 import { profileUpdateSchema } from "@/core/schemas";
+import { updateAiSettings, updateNotificationPrefs } from "@/core/settings";
+import { getMe, setWebhook } from "@/core/telegram/api";
 import { toMinor } from "@/lib/utils";
 import { AppError } from "@/core/errors";
 
-export type FormState = { ok?: boolean; error?: string };
+export type FormState = { ok?: boolean; error?: string; message?: string };
 
 export async function updateProfileAction(
   _prev: FormState,
@@ -58,4 +60,68 @@ export async function changePinAction(
     return { error: err instanceof AppError ? err.message : "Could not change PIN." };
   }
   return { ok: true };
+}
+
+export async function updateAiAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const keys: Record<string, string> = {};
+  for (const provider of ["openrouter", "groq", "grok", "deepseek"]) {
+    const value = String(formData.get(`key_${provider}`) ?? "").trim();
+    if (value) keys[provider] = value;
+  }
+  const selected = String(formData.get("selected_model") ?? "").trim();
+  try {
+    await updateAiSettings({
+      keys: Object.keys(keys).length ? keys : undefined,
+      selected_model: selected || null,
+    });
+  } catch (err) {
+    return { error: err instanceof AppError ? err.message : "Could not save AI settings." };
+  }
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+export async function updateNotificationsAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const channels = {
+    telegram: formData.get("channel_telegram") === "on",
+    web: formData.get("channel_web") === "on",
+    email: formData.get("channel_email") === "on",
+  };
+  try {
+    await updateNotificationPrefs({
+      daily_ask_time: String(formData.get("daily_ask_time") ?? "00:00"),
+      reask_gap_hours: Number(formData.get("reask_gap_hours") ?? 6),
+      quiet_start: String(formData.get("quiet_start") ?? "00:00"),
+      quiet_end: String(formData.get("quiet_end") ?? "06:00"),
+      channels,
+    });
+  } catch (err) {
+    return { error: err instanceof AppError ? err.message : "Could not save." };
+  }
+  revalidatePath("/settings");
+  return { ok: true };
+}
+
+export async function connectTelegramAction(
+  _prev: FormState,
+): Promise<FormState> {
+  try {
+    const me = await getMe();
+    await setWebhook();
+    revalidatePath("/settings");
+    return { ok: true, message: `Webhook registered for @${me.username ?? me.id}.` };
+  } catch (err) {
+    return {
+      error:
+        err instanceof AppError
+          ? err.message
+          : "Telegram is unreachable from this machine. Try again from the deployed app.",
+    };
+  }
 }

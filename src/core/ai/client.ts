@@ -189,3 +189,35 @@ export async function aiAvailable(): Promise<boolean> {
   const keys = await providerKeys();
   return Object.values(keys).some(Boolean);
 }
+
+export type FreeModel = { id: string; name: string; context: number | null };
+
+let modelListCache: { at: number; models: FreeModel[] } | null = null;
+
+export async function getFreeModels(): Promise<FreeModel[]> {
+  if (modelListCache && Date.now() - modelListCache.at < 60 * 60_000) {
+    return modelListCache.models;
+  }
+  const res = await fetch("https://openrouter.ai/api/v1/models", {
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
+  });
+  if (!res.ok) return [];
+  const data = (await res.json()) as {
+    data?: Array<{
+      id: string;
+      name?: string;
+      context_length?: number;
+      pricing?: { prompt?: string; completion?: string };
+    }>;
+  };
+  const models = (data.data ?? [])
+    .filter(
+      (m) =>
+        m.id.endsWith(":free") ||
+        (String(m.pricing?.prompt) === "0" && String(m.pricing?.completion) === "0"),
+    )
+    .map((m) => ({ id: m.id, name: m.name ?? m.id, context: m.context_length ?? null }));
+  modelListCache = { at: Date.now(), models };
+  return models;
+}
