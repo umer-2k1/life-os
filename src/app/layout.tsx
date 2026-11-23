@@ -25,6 +25,7 @@ export const metadata: Metadata = {
   description:
     "Private vision + accountability system. Make a shit ton of money. Nobody cares about it.",
   applicationName: "Life OS",
+  robots: { index: false, follow: false }, // private
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
