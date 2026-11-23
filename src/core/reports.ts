@@ -40,7 +40,9 @@ export function defaultRange(kind: "weekly" | "monthly" | "custom"): { start: st
   if (kind === "weekly") {
     const d = new Date(`${today}T12:00:00Z`);
     const diff = (d.getUTCDay() + 6) % 7;
-    return { start: addDaysISO(today, -diff), end: today };
+    const start = addDaysISO(today, -diff);
+    // On Monday a "this week" range is one day — widen it to a real week.
+    return { start: start === today ? addDaysISO(today, -6) : start, end: today };
   }
   if (kind === "monthly") {
     return { start: `${today.slice(0, 7)}-01`, end: today };
