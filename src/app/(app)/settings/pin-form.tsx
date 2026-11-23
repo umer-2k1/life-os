@@ -1,24 +1,32 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Label } from "@/components/ui/input";
+import { PinInput } from "@/components/ui/pin-input";
 import { changePinAction, type FormState } from "./actions";
 
-function PinField({ name, label }: { name: string; label: string }) {
+function PinRow({
+  label,
+  name,
+  value,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
   return (
     <div>
-      <Label htmlFor={name}>{label}</Label>
-      <Input
-        id={name}
-        name={name}
-        type="password"
-        inputMode="numeric"
-        autoComplete="off"
-        maxLength={6}
-        pattern="\d{6}"
-        placeholder="••••••"
-        className="h-11 text-center tracking-[0.4em]"
+      <Label>{label}</Label>
+      <input type="hidden" id={name} name={name} value={value} />
+      <PinInput
+        value={value}
+        onChange={onChange}
+        size="compact"
+        className="justify-start"
+        aria-label={label}
       />
     </div>
   );
@@ -29,17 +37,23 @@ export function PinForm() {
     changePinAction,
     {},
   );
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
 
   return (
     <form action={action} className="space-y-4">
       <div className="grid gap-4 sm:grid-cols-3">
-        <PinField name="current_pin" label="Current PIN" />
-        <PinField name="new_pin" label="New PIN" />
-        <PinField name="confirm_pin" label="Confirm new PIN" />
+        <PinRow label="Current PIN" name="current_pin" value={current} onChange={setCurrent} />
+        <PinRow label="New PIN" name="new_pin" value={next} onChange={setNext} />
+        <PinRow label="Confirm new PIN" name="confirm_pin" value={confirm} onChange={setConfirm} />
       </div>
       {state.error ? <p className="text-[12.5px] text-red">{state.error}</p> : null}
-      {state.ok ? <p className="text-[12.5px] text-green">PIN changed.</p> : null}
-      <Button type="submit" disabled={pending}>
+      {state.ok ? <p className="text-[12.5px] text-green">PIN changed. Use it next time.</p> : null}
+      <Button
+        type="submit"
+        disabled={pending || current.length < 6 || next.length < 6 || confirm.length < 6}
+      >
         {pending ? "Changing…" : "Change PIN"}
       </Button>
     </form>
