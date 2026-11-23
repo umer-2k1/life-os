@@ -5,7 +5,7 @@ import { heuristicNextAction } from "@/core/dreams";
 import { daysSinceTouched, isStale } from "@/core/decay";
 import { formatMoney, pct } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Textarea } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { ImageUploader } from "./image-uploader";
 import { DeleteDreamButton } from "./delete-dream-button";
@@ -217,9 +217,9 @@ export function DreamDetail({ dream }: { dream: Dream }) {
         <summary className="cursor-pointer text-[12px] text-muted">Edit the emotional anchor alone</summary>
         <form action={setEmotionAction} className="mt-3 space-y-2">
           <input type="hidden" name="dream_id" value={dream.id} />
-          <Input name="story" defaultValue={emotion?.story ?? ""} placeholder="Why you want it" />
-          <Input name="emotional_reason" defaultValue={emotion?.emotional_reason ?? ""} placeholder="Raw reason" />
-          <Input name="feeling" defaultValue={emotion?.feeling ?? ""} placeholder="Feeling" />
+          <Textarea name="story" defaultValue={emotion?.story ?? ""} placeholder="Why you want it" className="min-h-16" />
+          <Textarea name="emotional_reason" defaultValue={emotion?.emotional_reason ?? ""} placeholder="The raw reason — a letter to yourself" className="min-h-20" />
+          <Input name="feeling" defaultValue={emotion?.feeling ?? ""} placeholder="Feeling (one word)" />
           <Button type="submit" size="sm" variant="outline">Save anchor</Button>
         </form>
       </details>
