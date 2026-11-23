@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import type { ReactNode } from "react";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
 
@@ -42,7 +43,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
       <body>{children}</body>
