@@ -26,7 +26,7 @@ export class DailyLog {
   })
   input_kind?: InputKind | null;
   @Column({ type: "int", default: 0 }) score!: number;
-  @Column({ type: "simple-json", default: "[]" }) summary_bullets!: string[];
+  @Column({ type: "simple-json" }) summary_bullets!: string[];
   @Column({ type: "text", nullable: true }) trajectory_note?: string | null;
   @Column({ type: "text", nullable: true }) next_action?: string | null;
   // re-ask state machine

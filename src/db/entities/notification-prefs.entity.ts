@@ -9,10 +9,7 @@ export class NotificationPrefs {
   @Column({ type: "int", default: 6 }) reask_gap_hours!: number;
   @Column({ type: "varchar", default: "00:00" }) quiet_start!: string;
   @Column({ type: "varchar", default: "06:00" }) quiet_end!: string;
-  @Column({
-    type: "simple-json",
-    default: `'{"telegram":true,"web":true,"email":false}'`,
-  })
+  @Column({ type: "simple-json" })
   channels!: Record<string, boolean>;
   @Column({ type: "boolean", default: true }) push_enabled!: boolean;
 }
