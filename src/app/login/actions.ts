@@ -1,35 +1,45 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import {
   SESSION_COOKIE,
   createSessionToken,
   sessionCookieOptions,
-  verifyPassword,
 } from "@/lib/auth";
 import { env } from "@/lib/env";
+import { rateLimit, resetRateLimit } from "@/lib/rate-limit";
+import { verifyPin } from "@/core/security";
 
 export type LoginState = { error?: string };
+
+async function clientKey(): Promise<string> {
+  const h = await headers();
+  const forwarded = h.get("x-forwarded-for");
+  return forwarded?.split(",")[0]?.trim() || h.get("x-real-ip") || "local";
+}
 
 export async function loginAction(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
-  const password = String(formData.get("password") ?? "");
+  const pin = String(formData.get("pin") ?? "").replace(/\D/g, "");
   const next = String(formData.get("next") ?? "/");
+  const key = await clientKey();
 
-  if (!env().APP_PASSWORD) {
-    return { error: "APP_PASSWORD is not set in .env." };
+  const limit = rateLimit(`login:${key}`, 8, 10 * 60_000);
+  if (!limit.ok) {
+    return { error: `Too many attempts. Try again in ${Math.ceil(limit.retryAfter / 60)} min.` };
   }
-  if (!password) return { error: "Enter your password." };
+  if (!/^\d{6}$/.test(pin)) return { error: "Enter your 6-digit PIN." };
 
-  const ok = await verifyPassword(password);
+  const ok = await verifyPin(pin);
   if (!ok) {
-    await new Promise((r) => setTimeout(r, 600));
-    return { error: "Wrong password." };
+    await new Promise((r) => setTimeout(r, 450));
+    return { error: "Wrong PIN." };
   }
 
+  resetRateLimit(`login:${key}`);
   const token = await createSessionToken(env().OWNER_USER_ID);
   const store = await cookies();
   store.set(SESSION_COOKIE, token, sessionCookieOptions());

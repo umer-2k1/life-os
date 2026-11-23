@@ -35,7 +35,7 @@ export default async function LoginPage({
         </p>
         <LoginForm next={next} />
         <p className="mt-6 text-[11.5px] leading-relaxed text-faint">
-          Single-user gate. Everything stays on your own database.
+          Private single-user gate · 6-digit PIN · your own database.
         </p>
       </div>
     </main>

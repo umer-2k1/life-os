@@ -15,15 +15,19 @@ export function LoginForm({ next }: { next: string }) {
     <form action={formAction} className="mt-7 space-y-4">
       <input type="hidden" name="next" value={next} />
       <div>
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="pin">6-digit PIN</Label>
         <Input
-          id="password"
-          name="password"
+          id="pin"
+          name="pin"
           type="password"
-          autoComplete="current-password"
+          inputMode="numeric"
+          autoComplete="one-time-code"
           autoFocus
           required
-          placeholder="••••••••"
+          maxLength={6}
+          pattern="\d{6}"
+          placeholder="••••••"
+          className="h-14 text-center font-display text-2xl tracking-[0.55em] placeholder:tracking-[0.4em]"
         />
       </div>
       {state.error ? (
@@ -34,6 +38,9 @@ export function LoginForm({ next }: { next: string }) {
       <Button type="submit" variant="gold" size="lg" className="w-full" disabled={pending}>
         {pending ? "Opening…" : "Enter"}
       </Button>
+      <p className="text-center text-[11px] text-faint">
+        Default PIN is <span className="tnum text-muted">252525</span> — change it in Settings.
+      </p>
     </form>
   );
 }

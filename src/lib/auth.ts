@@ -1,6 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { safeEqual } from "./crypto";
 import { env } from "./env";
 
 export const SESSION_COOKIE = "lifeos_session";
@@ -12,12 +11,6 @@ function secretKey(): Uint8Array {
   const secret = env().AUTH_SECRET;
   if (!secret) throw new Error("AUTH_SECRET is not set");
   return new TextEncoder().encode(secret);
-}
-
-export async function verifyPassword(input: string): Promise<boolean> {
-  const expected = env().APP_PASSWORD;
-  if (!expected) return false;
-  return safeEqual(input, expected);
 }
 
 export async function createSessionToken(userId: string): Promise<string> {
