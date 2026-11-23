@@ -9,6 +9,7 @@ const TABS = [
   { href: "/dreams", label: "Dreams" },
   { href: "/activity", label: "Activity" },
   { href: "/reports", label: "Reports" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function NavTabs() {
