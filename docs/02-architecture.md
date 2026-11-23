@@ -49,7 +49,7 @@
 ## Suggested repo layout (monorepo-lite)
 
 ```
-the-life-im-building/
+life-os/
 ├─ docs/
 ├─ app/                 # Next.js App Router (dashboard, API routes)
 │  ├─ (dashboard)/
