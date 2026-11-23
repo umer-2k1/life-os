@@ -3,6 +3,8 @@
 ## Guiding rule
 **One TypeScript codebase. One deploy. Shared core.** The website, the Telegram bot, the MCP server, and the cron jobs all call the **same service layer** — so logic lives once and bugs don't get duplicated.
 
+**Corollary — channel-agnostic check-in:** the daily update is one core object. Telegram, MCP (incl. remote/cloud agents), and Web/PWA are just *adapters* that deliver the ask and submit the answer via the same `log_day` pipeline. The first answer on any channel closes it; re-ask fires only if none did. See `04-ai-accountability-engine.md`.
+
 ## System overview
 
 ```

@@ -31,7 +31,7 @@ This is **not** a to-do app and **not** a pretty vision board. It is a system th
 | Database / Auth / Storage | Supabase (Postgres + Auth + Storage) |
 | AI | OpenRouter (free models) → Groq fallback → optional Grok/DeepSeek keys, via LiteLLM/LangChain |
 | Voice → text | Groq Whisper |
-| Accountability bot | Telegram (voice + text) |
+| Daily check-in | Channel-agnostic — ask & answer via Telegram (voice/text), MCP (any connected/cloud agent), or Web/PWA; first answer closes it everywhere |
 | Scheduler (6-hour re-ask) | GitHub Actions cron → API route (Vercel free cron can't do sub-daily) |
 | Email reports | Resend |
 | MCP | Remote MCP server in the same TypeScript codebase, shared data layer |

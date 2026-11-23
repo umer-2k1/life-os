@@ -22,6 +22,13 @@ So I can drive the whole system from any MCP client (Claude, etc.) — **"add a 
 - `set_emotional_anchor { dream_id, story?, emotional_reason?, feeling? }`
 - `next_action { dream_id }` — AI returns the single next action.
 
+### Daily check-in (ask & answer from any MCP client / cloud agent)
+- `get_pending_checkin` — is there an open check-in for today? Returns the question + status (so my connected agent knows to ask me). Empty if already answered on any channel.
+- `answer_checkin { text, date? }` — submit my daily update here; closes the check-in everywhere, runs the full pipeline. Alias of `log_day`.
+- `get_followups { date }` — any clarifying questions the AI still wants answered.
+- `answer_followup { date, text }` — reply to a follow-up.
+- Pattern: a cloud/desktop agent polls `get_pending_checkin` (or is nudged), asks me, then calls `answer_checkin`. No forms, no Telegram needed.
+
 ### Daily log / accountability
 - `log_day { text, date? }` — same pipeline as the bot (parse → activities → score).
 - `get_day { date }` — recap, score, activities.
@@ -49,6 +56,7 @@ So I can drive the whole system from any MCP client (Claude, etc.) — **"add a 
 - `get_profile` · `update_profile { north_star_amount?, identity_line?, motto? }`
 
 ## Resources (read-only, optional)
+- `checkin://pending` — today's open check-in (question + status), so a client can surface it on connect.
 - `dreams://all` — current dreams snapshot.
 - `report://latest` — latest report markdown.
 - `profile://me` — profile + North Star.

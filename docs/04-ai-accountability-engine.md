@@ -4,7 +4,21 @@ The heart of behavior change. The bot that comes to me.
 
 ---
 
-## Daily loop (Telegram)
+## The check-in is channel-agnostic (key design)
+- The daily update is **one "open check-in" object** in `core/`, not a Telegram thing.
+- Any **channel** can *deliver* the question and *accept* the answer:
+  - **Telegram** — pushes it to me automatically (lazy default, voice or text).
+  - **MCP** — when my AI/agent or a cloud MCP client is connected, it sees today's open check-in and asks me right there; I answer in that chat.
+  - **Web / PWA** — answer on the site.
+  - **Email** (optional) — reply-to-answer later if wanted.
+- **Whoever answers first closes it everywhere.** `answered=true` is set regardless of channel.
+- The **re-ask only fires if no channel answered.**
+- Same `log_day` pipeline (parse → activities → score) runs no matter where the answer came from.
+- Principle: **easiest wins.** I answer wherever I already am.
+
+---
+
+## Daily loop (any channel)
 
 1. **12:00 AM** (my timezone): bot sends the daily ask.
    - Short, human, no fluff. e.g. *"Day 41. What did you do today toward the money / the dreams? Voice or text."*
@@ -19,7 +33,7 @@ The heart of behavior change. The bot that comes to me.
 ## Re-ask logic (the nagging)
 - Ping at 12:00 AM. If no answer:
   - re-ask every **~6h** (next ~6:00 AM), within allowed windows.
-- Once I answer → **stop** until next day 12:00 AM.
+- Once I answer **on any channel** (Telegram / MCP / web) → **stop** until next day 12:00 AM.
 - Example: asked 12 AM, I ignore → asked again 6 AM → I answer → silent until next 12 AM.
 - Hourly **GitHub Actions cron** evaluates who's due (state in `daily_logs`). Respects `quiet_hours` and `reask_gap_hours`.
 - Don't overload the server — hourly check, 6h gap, one user.
@@ -91,7 +105,15 @@ Next: send the pitch deck to 2 of the 5 recruiters.
 - Telegram voice message → download OGG → **Groq Whisper** transcription → treat as `raw_input`.
 - Fallback: if Whisper unavailable, ask me to type.
 
-## Channels
-- **Telegram** = primary, reliable (voice+text, mobile push built in).
-- **Web push / PWA** = secondary reminders.
-- **Email** = reports only (Resend).
+## Channels (ask & answer anywhere)
+
+| Channel | Delivers the ask? | Accepts the answer? | How |
+|---------|-------------------|---------------------|-----|
+| **Telegram** | ✅ auto push (12 AM + re-ask) | ✅ voice + text | bot webhook → `log_day` |
+| **MCP** | ✅ *pull* — connected agent/client sees the open check-in | ✅ text (voice if client sends it) | `get_pending_checkin` + `answer_checkin` (see `05-mcp-server.md`) |
+| **Web / PWA** | ✅ in-app banner + web push | ✅ voice + text | UI → `log_day` |
+| **Email** | optional nudge | reply-to-answer (optional) | Resend inbound (future) |
+
+- **Cloud / remote**: because the MCP server is remote (hosted), any cloud-based MCP client or scheduled cloud agent I attach can ask me and submit my answer — no laptop needed.
+- `log_day` is the single entry point; every channel calls it. `input_kind` records which channel (`telegram` / `mcp` / `web` / `voice`).
+- Reminders/push: Telegram is the reliable one; Web push/PWA is secondary. **Reports** still go by email (Resend).
