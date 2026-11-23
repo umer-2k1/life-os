@@ -5,7 +5,6 @@ import { getDataSource } from "@/db/data-source";
 import { Report as ReportEntity } from "@/db/entities";
 import { env } from "@/lib/env";
 import { addDaysISO, formatRange, todayISO } from "@/lib/dates";
-import { formatMoney } from "@/lib/utils";
 import { AppError } from "./errors";
 import { activitiesBetween } from "./activities";
 import { listDreams } from "./dreams";

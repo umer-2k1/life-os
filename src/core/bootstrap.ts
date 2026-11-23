@@ -90,7 +90,6 @@ export async function seedDreams(ownerId = env().OWNER_USER_ID): Promise<number>
 
   let created = 0;
   for (const seed of SEED_DREAMS) {
-    const now = new Date();
     const dream = await dreams.save(
       dreams.create({
         user_id: ownerId,

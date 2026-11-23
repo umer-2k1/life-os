@@ -36,7 +36,6 @@ export function DreamDetail({ dream }: { dream: Dream }) {
   const currency = savings?.currency ?? "PKR";
   const days = daysSinceTouched(dream);
   const next = heuristicNextAction(dream);
-  const openMilestones = (dream.milestones ?? []).filter((m) => !m.done);
   const doneMilestones = (dream.milestones ?? []).filter((m) => m.done);
 
   return (

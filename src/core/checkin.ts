@@ -1,6 +1,5 @@
 import { getDataSource } from "@/db/data-source";
 import { TelegramLink } from "@/db/entities";
-import { env } from "@/lib/env";
 import { todayISO } from "@/lib/dates";
 import { ensureDailyLog, markAsked, pendingCheckin } from "./logs";
 import { getProfile } from "./profile";

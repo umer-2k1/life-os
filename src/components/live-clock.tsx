@@ -3,17 +3,12 @@
 import { useEffect, useState } from "react";
 
 export function LiveClock({ className }: { className?: string }) {
-  const [now, setNow] = useState<Date | null>(null);
+  const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => {
-    setNow(new Date());
     const id = setInterval(() => setNow(new Date()), 1000);
     return () => clearInterval(id);
   }, []);
-
-  if (!now) {
-    return <span className={className} aria-hidden />;
-  }
 
   const date = now.toLocaleDateString("en-US", {
     weekday: "short",

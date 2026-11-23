@@ -111,6 +111,7 @@ export async function updateNotificationsAction(
 export async function connectTelegramAction(
   _prev: FormState,
 ): Promise<FormState> {
+  void _prev;
   try {
     const me = await getMe();
     await setWebhook();
