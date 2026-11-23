@@ -1,0 +1,36 @@
+# deps
+node_modules/
+.pnpm-store/
+
+# next
+.next/
+out/
+build/
+dist/
+
+# env & secrets
+.env
+.env*.local
+.env.local
+*.key
+*.pem
+
+# supabase
+.supabase/
+
+# logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# os / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# misc
+coverage/
+.turbo/
+.vercel/
