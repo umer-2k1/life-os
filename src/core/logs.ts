@@ -241,6 +241,7 @@ export type PendingCheckin = {
   question: string;
   day: number;
   streak: number;
+  score: number | null;
   asked_at: string | null;
   last_ping_at: string | null;
 };
@@ -262,6 +263,7 @@ export async function pendingCheckin(date?: string): Promise<PendingCheckin> {
       : `Day ${day}. What did you do today toward the money / the dreams? Voice or text.`,
     day,
     streak: streak.current,
+    score: log.answered ? log.score : null,
     asked_at: log.asked_at ? new Date(log.asked_at).toISOString() : null,
     last_ping_at: log.last_ping_at ? new Date(log.last_ping_at).toISOString() : null,
   };
