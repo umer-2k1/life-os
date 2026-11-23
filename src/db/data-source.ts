@@ -20,6 +20,11 @@ export function createDataSource(): DataSource {
         ? { rejectUnauthorized: false }
         : false,
     entities: ENTITIES,
+    extra: {
+      max: 2,
+      idleTimeoutMillis: 10_000,
+      connectionTimeoutMillis: 15_000,
+    },
     migrations: [path.join(process.cwd(), "src/db/migrations/*.ts")],
     migrationsTableName: "lifeos_migrations",
     synchronize: false,
