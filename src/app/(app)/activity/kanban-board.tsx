@@ -113,13 +113,13 @@ export function KanbanBoard({ initial }: { initial: BoardActivity[] }) {
                       {a.suggestion}
                     </p>
                   ) : null}
-                  <div className="mt-2 flex items-center justify-between opacity-0 transition-opacity group-hover:opacity-100 focus-within:opacity-100">
+                  <div className="mt-2 flex items-center justify-between opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
                     <div className="flex gap-1">
                       <button
                         type="button"
                         onClick={() => step(a.id, -1)}
                         aria-label="Move left"
-                        className="rounded border border-border px-1.5 text-[11px] text-muted hover:text-fg"
+                        className="grid h-7 w-7 place-items-center rounded-md border border-border text-[13px] text-muted hover:border-[rgba(200,162,75,0.4)] hover:text-gold-soft"
                       >
                         ←
                       </button>
@@ -127,7 +127,7 @@ export function KanbanBoard({ initial }: { initial: BoardActivity[] }) {
                         type="button"
                         onClick={() => step(a.id, 1)}
                         aria-label="Move right"
-                        className="rounded border border-border px-1.5 text-[11px] text-muted hover:text-fg"
+                        className="grid h-7 w-7 place-items-center rounded-md border border-border text-[13px] text-muted hover:border-[rgba(200,162,75,0.4)] hover:text-gold-soft"
                       >
                         →
                       </button>
