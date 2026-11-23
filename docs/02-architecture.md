@@ -38,7 +38,7 @@
 | Framework | **Next.js (App Router, TS)** | UI + API routes + serverless in one |
 | UI | **Tailwind + shadcn/ui** | fast, clean, dark-luxury-friendly |
 | DB / Auth / Storage | **Supabase** | Postgres + single-user auth + image storage, one free tier |
-| ORM | **Drizzle** (or Prisma) | typed schema, migrations |
+| ORM | **TypeORM** | entities + migrations over Supabase Postgres (`DATABASE_URL`); schema in `docs/reference/entities.ts` |
 | AI routing | **LiteLLM / LangChain** | multi-provider, model picker, auto-fallback |
 | Voice → text | **Groq Whisper** | free/cheap, fits stack |
 | Bot | **Telegram Bot API** (grammY) | best free voice+text, reliable mobile |
@@ -66,7 +66,7 @@ life-os/
 │  ├─ reports/
 │  ├─ savings/
 │  └─ ai/               # provider routing, prompts
-├─ db/                  # drizzle schema + migrations
+├─ db/                  # TypeORM DataSource, entities, migrations
 ├─ components/          # shadcn + custom
 ├─ lib/                 # supabase client, auth, utils
 ├─ bot/                 # telegram handlers (call core/)

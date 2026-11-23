@@ -29,6 +29,7 @@ This is **not** a to-do app and **not** a pretty vision board. It is a system th
 |------|----------|
 | Framework | Next.js (App Router) + Tailwind + shadcn/ui |
 | Database / Auth / Storage | Supabase (Postgres + Auth + Storage) |
+| ORM | TypeORM (entities in `docs/reference/entities.ts`) |
 | AI | OpenRouter (free models) → Groq fallback → optional Grok/DeepSeek keys, via LiteLLM/LangChain |
 | Voice → text | Groq Whisper |
 | Daily check-in | Channel-agnostic — ask & answer via Telegram (voice/text), MCP (any connected/cloud agent), or Web/PWA; first answer closes it everywhere |
@@ -55,6 +56,11 @@ Read in order:
 9. [`docs/08-roadmap.md`](docs/08-roadmap.md) — build milestones
 10. [`docs/09-setup.md`](docs/09-setup.md) — env vars & running it
 11. [`docs/10-ui-build-brief.md`](docs/10-ui-build-brief.md) — developer-ready, screen-by-screen UI instructions
+12. [`docs/11-api-contract.md`](docs/11-api-contract.md) — API routes & payloads
+13. [`docs/12-ai-prompts.md`](docs/12-ai-prompts.md) — AI prompt templates + JSON output schemas
+14. [`docs/reference/entities.ts`](docs/reference/entities.ts) — **TypeORM** entities (schema source of truth)
+
+> 🤖 **Implementing agent:** start at [`AGENTS.md`](AGENTS.md) — stack, conventions, build order, and per-milestone done-criteria.
 
 > ✅ **Design LOCKED — "Gold Luxury" (dark).** Visual source of truth: [`docs/reference/ui-gold-luxury-demo.html`](docs/reference/ui-gold-luxury-demo.html) (open in a browser) + [`docs/reference/README.md`](docs/reference/README.md). The implementing agent builds the Next.js app to match this demo's feel — not its sample data.
 

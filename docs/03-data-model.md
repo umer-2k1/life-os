@@ -1,6 +1,8 @@
 # 03 · Data Model
 
-Postgres (Supabase). Single user, but `user_id` kept for RLS + future. Illustrative schema — refine during build.
+> **Implementation:** schema is defined with **TypeORM** entities — source of truth in [`reference/entities.ts`](reference/entities.ts). Generate migrations from those entities; do not hand-write SQL. The tables below describe the same model in plain terms.
+
+Postgres (Supabase). Single user, but `user_id` kept for scoping + future. Money stored as integer minor units + `currency`.
 
 ## Tables
 
