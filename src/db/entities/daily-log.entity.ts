@@ -33,7 +33,7 @@ export class DailyLog {
   @Column({ type: "timestamptz", nullable: true }) asked_at?: Date | null;
   @Column({ type: "timestamptz", nullable: true }) last_ping_at?: Date | null;
   @Column({ type: "boolean", default: false }) answered!: boolean;
-  @CreateDateColumn() created_at!: Date;
+  @CreateDateColumn({ type: "timestamptz" }) created_at!: Date;
 
   @OneToMany(() => Activity, (a) => a.daily_log)
   activities?: Activity[];

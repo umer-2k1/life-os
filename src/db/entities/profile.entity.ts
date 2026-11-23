@@ -15,5 +15,5 @@ export class Profile {
   @Column({ type: "varchar", default: "PKR" }) currency!: string;
   /** scrypt hash for the 6-digit PIN. Null only before bootstrap. */
   @Column({ type: "varchar", nullable: true }) pin_hash?: string | null;
-  @CreateDateColumn() created_at!: Date;
+  @CreateDateColumn({ type: "timestamptz" }) created_at!: Date;
 }

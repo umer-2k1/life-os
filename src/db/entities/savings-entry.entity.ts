@@ -18,5 +18,5 @@ export class SavingsEntry {
   /** Minor units; can be negative. */
   @Column({ type: "bigint" }) amount!: string;
   @Column({ type: "text", nullable: true }) note?: string | null;
-  @CreateDateColumn() created_at!: Date;
+  @CreateDateColumn({ type: "timestamptz" }) created_at!: Date;
 }

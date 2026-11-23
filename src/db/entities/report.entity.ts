@@ -19,5 +19,5 @@ export class Report {
   @Column({ type: "simple-json", nullable: true }) content_json?: unknown;
   @Column({ type: "varchar", nullable: true }) pdf_url?: string | null;
   @Column({ type: "timestamptz", nullable: true }) emailed_at?: Date | null;
-  @CreateDateColumn() created_at!: Date;
+  @CreateDateColumn({ type: "timestamptz" }) created_at!: Date;
 }

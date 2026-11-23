@@ -36,5 +36,5 @@ export class Activity {
   column!: KanbanColumn;
   @Column({ type: "boolean", default: false }) priority!: boolean;
   @Column({ type: "date", nullable: true }) activity_date?: string | null;
-  @CreateDateColumn() created_at!: Date;
+  @CreateDateColumn({ type: "timestamptz" }) created_at!: Date;
 }

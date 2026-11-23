@@ -20,7 +20,7 @@ export class Savings {
   @Column({ type: "bigint", default: 0 }) target_amount!: string;
   @Column({ type: "bigint", default: 0 }) saved_amount!: string;
   @Column({ type: "varchar", default: "PKR" }) currency!: string;
-  @UpdateDateColumn() updated_at!: Date;
+  @UpdateDateColumn({ type: "timestamptz" }) updated_at!: Date;
   @OneToMany(() => SavingsEntry, (e) => e.savings)
   entries?: SavingsEntry[];
 }

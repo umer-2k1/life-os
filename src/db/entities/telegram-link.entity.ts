@@ -11,5 +11,5 @@ export class TelegramLink {
   @Column("uuid") user_id!: string;
   @Column({ type: "varchar", unique: true }) chat_id!: string;
   @Column({ type: "varchar", nullable: true }) username?: string | null;
-  @CreateDateColumn() linked_at!: Date;
+  @CreateDateColumn({ type: "timestamptz" }) linked_at!: Date;
 }

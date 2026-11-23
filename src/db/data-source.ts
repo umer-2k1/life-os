@@ -5,9 +5,8 @@ import { DataSource } from "typeorm";
 
 import { ENTITIES } from "./entities";
 
-const globalCache = globalThis as unknown as {
-  __lifeosDataSource?: DataSource;
-};
+/** Module-scoped: each server bundle gets its own pool with its own entity metadata. */
+let cachedDataSource: DataSource | null = null;
 
 export function createDataSource(): DataSource {
   const url = process.env.DATABASE_URL;
@@ -28,13 +27,12 @@ export function createDataSource(): DataSource {
   });
 }
 
-/** Singleton — survives Next.js dev hot reloads. */
+/** Singleton per module bundle. */
 export async function getDataSource(): Promise<DataSource> {
-  const existing = globalCache.__lifeosDataSource;
-  if (existing?.isInitialized) return existing;
-  const ds = existing ?? createDataSource();
+  if (cachedDataSource?.isInitialized) return cachedDataSource;
+  const ds = cachedDataSource ?? createDataSource();
   if (!ds.isInitialized) await ds.initialize();
-  globalCache.__lifeosDataSource = ds;
+  cachedDataSource = ds;
   return ds;
 }
 
