@@ -89,7 +89,7 @@ export function LoginForm({ next }: { next: string }) {
 
       <div className="flex items-center justify-center gap-2 text-[10.5px] text-faint">
         <span className="h-1 w-1 rounded-full bg-gold/70" aria-hidden />
-        Default PIN is <span className="tnum text-muted">252525</span>
+        First run PIN <span className="tnum text-muted">252525</span>
         <span aria-hidden>·</span>
         change it in Settings
       </div>
