@@ -2,11 +2,16 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProfile } from "@/core/profile";
+import { getAiSettings, getNotificationPrefs, maskedKeys } from "@/core/settings";
+import { getFreeModels } from "@/core/ai/client";
 import { env, hasAI, hasCloudinary, hasResend, hasTelegram } from "@/lib/env";
 import { getSession } from "@/lib/auth";
 import { logoutAction } from "@/app/login/actions";
+import { AiForm } from "./ai-form";
+import { NotificationsForm } from "./notifications-form";
 import { PinForm } from "./pin-form";
 import { ProfileForm } from "./profile-form";
+import { TelegramConnect } from "./telegram-connect";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -31,7 +36,14 @@ function Integration({
 }
 
 export default async function SettingsPage() {
-  const [profile, session] = await Promise.all([getProfile(), getSession()]);
+  const [profile, session, ai, masked, models, prefs] = await Promise.all([
+    getProfile(),
+    getSession(),
+    getAiSettings(),
+    maskedKeys(),
+    getFreeModels().catch(() => []),
+    getNotificationPrefs(),
+  ]);
   const e = env();
 
   return (
@@ -62,6 +74,41 @@ export default async function SettingsPage() {
       </section>
 
       <section className="card">
+        <p className="eyebrow">AI providers</p>
+        <p className="mt-1.5 text-[12.5px] text-muted">
+          Free-first: Groq → OpenRouter → optional Grok / DeepSeek. Keys are encrypted at rest.
+        </p>
+        <div className="mt-3">
+          <AiForm
+            masked={masked}
+            models={models.map((m) => ({ id: m.id, name: m.name }))}
+            selected={ai?.selected_model ?? null}
+          />
+        </div>
+      </section>
+
+      <section className="card">
+        <p className="eyebrow">Check-in &amp; notifications</p>
+        <p className="mt-1.5 text-[12.5px] text-muted">
+          Ask once, then re-ask until any channel answers. Quiet hours only suppress re-asks.
+        </p>
+        <div className="mt-3">
+          <NotificationsForm
+            prefs={{
+              id: prefs.id,
+              user_id: prefs.user_id,
+              daily_ask_time: prefs.daily_ask_time,
+              reask_gap_hours: prefs.reask_gap_hours,
+              quiet_start: prefs.quiet_start,
+              quiet_end: prefs.quiet_end,
+              channels: prefs.channels,
+              push_enabled: prefs.push_enabled,
+            }}
+          />
+        </div>
+      </section>
+
+      <section className="card">
         <p className="eyebrow">Security</p>
         <p className="mt-1.5 text-[12.5px] text-muted">
           Your PIN is hashed (scrypt) before storage. 8 attempts per 10 minutes, then locked.
@@ -80,6 +127,12 @@ export default async function SettingsPage() {
           <Integration name="Resend" detail="Emailed reports" on={hasResend()} />
           <Integration name="MCP" detail="/api/mcp · bearer token" on={Boolean(e.MCP_AUTH_TOKEN)} />
         </ul>
+        <div className="mt-3 border-t border-border pt-3">
+          <TelegramConnect />
+          <p className="mt-1.5 text-[11px] text-faint">
+            After registering, send <span className="text-muted">/start</span> to your bot once.
+          </p>
+        </div>
       </section>
 
       <section className="card flex items-center justify-between gap-4">
