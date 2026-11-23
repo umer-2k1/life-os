@@ -54,6 +54,9 @@ Read in order:
 8. [`docs/07-design-system.md`](docs/07-design-system.md) — dark luxury UI spec
 9. [`docs/08-roadmap.md`](docs/08-roadmap.md) — build milestones
 10. [`docs/09-setup.md`](docs/09-setup.md) — env vars & running it
+11. [`docs/10-ui-build-brief.md`](docs/10-ui-build-brief.md) — developer-ready, screen-by-screen UI instructions
+
+> **Visual reference:** an interactive dark-luxury demo (Dashboard / Dreams / Activity / Reports, sample data) accompanies these specs — match its *feel*, not its data.
 
 ---
 
