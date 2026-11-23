@@ -61,7 +61,7 @@ export async function ensureBootstrap(): Promise<void> {
     await aiRepo.save(
       aiRepo.create({
         user_id: ownerId,
-        provider_order: ["openrouter", "groq", "grok", "deepseek"],
+        provider_order: ["groq", "openrouter", "grok", "deepseek"],
         selected_model: null,
         keys: {},
       }),

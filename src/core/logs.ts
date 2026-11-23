@@ -11,6 +11,7 @@ import { env } from "@/lib/env";
 import { todayISO } from "@/lib/dates";
 import { clamp } from "@/lib/utils";
 import { heuristicParse, type ParsedActivity } from "./ai/heuristic";
+import { aiParseUpdate, aiScoreDay } from "./ai";
 import { heuristicNextAction, listDreams, touchDream } from "./dreams";
 import { AppError } from "./errors";
 import { computeDailyScore, totalPoints } from "./scoring";
@@ -127,8 +128,14 @@ export async function logDay(input: {
   const log = await ensureDailyLog(input.date);
   const dreams = await listDreams({ status: "active" });
 
-  // AI later; heuristic always available.
-  const parsed = heuristicParse(text, dreams);
+  // AI when a key is configured; heuristic keeps the loop alive offline.
+  let parsed = heuristicParse(text, dreams);
+  try {
+    const ai = await aiParseUpdate(text, dreams, log.log_date);
+    if (ai) parsed = ai;
+  } catch (err) {
+    console.warn("[ai:parse] fallback to heuristic:", err instanceof Error ? err.message : err);
+  }
 
   const activityRepo = ds.getRepository(Activity);
   await activityRepo.delete({ daily_log_id: log.id });
@@ -154,9 +161,27 @@ export async function logDay(input: {
   }
 
   const streak = await getStreak();
-  const score = computeDailyScore(rows, streak.current);
+  let score = computeDailyScore(rows, streak.current);
+  let bullets = buildBullets(rows, dreams);
+  let trajectory = trajectoryNote(score, streak.current, []);
+  let nextAction: string | null = null;
+  let engine = parsed.engine;
   const points = totalPoints(rows, true);
   const prev = await previousScores(ds, log.log_date);
+  trajectory = trajectoryNote(score, streak.current, prev);
+
+  try {
+    const aiScore = await aiScoreDay(rows, dreams, streak.current, prev);
+    if (aiScore) {
+      score = aiScore.score;
+      bullets = aiScore.bullets;
+      trajectory = aiScore.trajectory;
+      nextAction = aiScore.next;
+      engine = "ai";
+    }
+  } catch (err) {
+    console.warn("[ai:score] fallback:", err instanceof Error ? err.message : err);
+  }
 
   const openDream = dreams
     .slice()
@@ -169,9 +194,11 @@ export async function logDay(input: {
   log.raw_input = log.raw_input ? `${log.raw_input}\n${text}` : text;
   log.input_kind = input.input_kind ?? "web";
   log.score = score;
-  log.summary_bullets = buildBullets(rows, dreams);
-  log.trajectory_note = trajectoryNote(score, streak.current, prev);
-  log.next_action = openDream ? heuristicNextAction(openDream) : "Add a dream — pick the one that scares you.";
+  log.summary_bullets = bullets;
+  log.trajectory_note = trajectory;
+  log.next_action =
+    nextAction ||
+    (openDream ? heuristicNextAction(openDream) : "Add a dream — pick the one that scares you.");
   log.answered = true;
   log.last_ping_at = new Date();
   if (!log.asked_at) log.asked_at = new Date();
@@ -179,7 +206,7 @@ export async function logDay(input: {
 
   await upsertScore(log.log_date, score, points);
 
-  return { ...(await getDay(log.log_date)), engine: parsed.engine };
+  return { ...(await getDay(log.log_date)), engine };
 }
 
 export async function saveReflection(input: {
