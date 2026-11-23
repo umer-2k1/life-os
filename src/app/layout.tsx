@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Fraunces, Inter } from "next/font/google";
 import "./globals.css";
+import { PwaRegister } from "@/components/pwa-register";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,8 +32,12 @@ export const metadata: Metadata = {
     title: "Life OS",
   },
   icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon.svg",
+    icon: [
+      { url: "/icons/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: "/icons/apple-touch-icon.png",
   },
 };
 
@@ -46,7 +51,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <PwaRegister />
+      </body>
     </html>
   );
 }
