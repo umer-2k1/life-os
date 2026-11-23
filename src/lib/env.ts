@@ -1,5 +1,3 @@
-import "server-only";
-
 import { z } from "zod";
 
 /**
@@ -27,6 +25,9 @@ const schema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   SUPABASE_STORAGE_BUCKET: z.string().default("lifeos"),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 
   OPENROUTER_API_KEY: z.string().optional(),
   GROQ_API_KEY: z.string().optional(),
@@ -60,6 +61,13 @@ export function env(): Env {
 
 export const hasSupabaseStorage = () =>
   Boolean(env().NEXT_PUBLIC_SUPABASE_URL && env().SUPABASE_SERVICE_ROLE_KEY);
+
+export const hasCloudinary = () =>
+  Boolean(
+    env().CLOUDINARY_CLOUD_NAME &&
+      env().CLOUDINARY_API_KEY &&
+      env().CLOUDINARY_API_SECRET,
+  );
 
 export const hasAI = () =>
   Boolean(env().OPENROUTER_API_KEY || env().GROQ_API_KEY || env().XAI_API_KEY || env().DEEPSEEK_API_KEY);

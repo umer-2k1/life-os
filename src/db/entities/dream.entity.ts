@@ -32,7 +32,7 @@ export class Dream {
   @Column({ type: "int", default: 0 }) progress!: number;
   @Column({ type: "simple-enum", enum: ["active", "achieved", "paused"], default: "active" })
   status!: DreamStatus;
-  @Column({ type: "datetime", nullable: true }) last_touched_at?: Date | null;
+  @Column({ type: "timestamptz", nullable: true }) last_touched_at?: Date | null;
   @CreateDateColumn() created_at!: Date;
 
   @OneToOne(() => DreamEmotion, (e) => e.dream, { cascade: false })

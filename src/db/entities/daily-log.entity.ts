@@ -30,8 +30,8 @@ export class DailyLog {
   @Column({ type: "text", nullable: true }) trajectory_note?: string | null;
   @Column({ type: "text", nullable: true }) next_action?: string | null;
   // re-ask state machine
-  @Column({ type: "datetime", nullable: true }) asked_at?: Date | null;
-  @Column({ type: "datetime", nullable: true }) last_ping_at?: Date | null;
+  @Column({ type: "timestamptz", nullable: true }) asked_at?: Date | null;
+  @Column({ type: "timestamptz", nullable: true }) last_ping_at?: Date | null;
   @Column({ type: "boolean", default: false }) answered!: boolean;
   @CreateDateColumn() created_at!: Date;
 

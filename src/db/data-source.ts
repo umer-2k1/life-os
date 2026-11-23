@@ -1,6 +1,5 @@
 import "reflect-metadata";
 
-import fs from "node:fs";
 import path from "node:path";
 import { DataSource } from "typeorm";
 
@@ -10,32 +9,9 @@ const globalCache = globalThis as unknown as {
   __lifeosDataSource?: DataSource;
 };
 
-function isSqlite(url: string | undefined): boolean {
-  return !url || url.startsWith("sqlite:") || url.startsWith("file:");
-}
-
-function sqliteFile(url: string | undefined): string {
-  if (url) {
-    const cleaned = url.replace(/^sqlite:(\/\/)?/, "");
-    if (cleaned) return path.isAbsolute(cleaned) ? cleaned : path.join(process.cwd(), cleaned);
-  }
-  return path.join(process.cwd(), ".data", "lifeos.db");
-}
-
 export function createDataSource(): DataSource {
   const url = process.env.DATABASE_URL;
-
-  if (isSqlite(url)) {
-    const file = sqliteFile(url);
-    fs.mkdirSync(path.dirname(file), { recursive: true });
-    return new DataSource({
-      type: "better-sqlite3",
-      database: file,
-      entities: ENTITIES,
-      synchronize: true,
-      logging: false,
-    });
-  }
+  if (!url) throw new Error("DATABASE_URL is required");
 
   return new DataSource({
     type: "postgres",

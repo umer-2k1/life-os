@@ -18,6 +18,6 @@ export class Report {
   @Column({ type: "text" }) content_md!: string;
   @Column({ type: "simple-json", nullable: true }) content_json?: unknown;
   @Column({ type: "varchar", nullable: true }) pdf_url?: string | null;
-  @Column({ type: "datetime", nullable: true }) emailed_at?: Date | null;
+  @Column({ type: "timestamptz", nullable: true }) emailed_at?: Date | null;
   @CreateDateColumn() created_at!: Date;
 }

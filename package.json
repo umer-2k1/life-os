@@ -2,18 +2,19 @@
   "name": "life-os",
   "version": "0.1.0",
   "private": true,
-  "description": "The Life I'm Building — private AI vision + accountability system",
+  "description": "The Life I'm Building \u2014 private AI vision + accountability system",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts",
+    "db:migrate": "node --env-file=.env --import tsx scripts/migrate.ts",
+    "db:seed": "node --env-file=.env --import tsx scripts/seed.ts",
     "db:reset": "tsx scripts/reset.ts",
-    "db:generate": "node --import tsx ./node_modules/typeorm/cli.js migration:generate -d src/db/data-source.ts",
-    "db:create": "node --import tsx ./node_modules/typeorm/cli.js migration:run -d src/db/data-source.ts"
+    "db:generate": "node --env-file=.env --import tsx ./node_modules/typeorm/cli.js migration:generate -d src/db/cli-data-source.ts",
+    "db:create": "node --import tsx ./node_modules/typeorm/cli.js migration:run -d src/db/data-source.ts",
+    "db:revert": "node --env-file=.env --import tsx ./node_modules/typeorm/cli.js migration:revert -d src/db/cli-data-source.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.20.2",
@@ -28,8 +29,8 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@supabase/supabase-js": "^2.58.0",
-    "better-sqlite3": "^12.4.1",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.11.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
@@ -49,7 +50,6 @@
   },
   "devDependencies": {
     "@tailwindcss/turbopack": "4.3.3",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -61,6 +61,10 @@
   },
   "packageManager": "pnpm@10.5.0",
   "pnpm": {
-    "onlyBuiltDependencies": ["better-sqlite3", "esbuild", "sharp"]
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild",
+      "sharp"
+    ]
   }
 }
