@@ -53,7 +53,13 @@ Login with your 6-digit PIN (default `252525`, change it in Settings).
 
 ## Documentation
 
-Read in order:
+Start with the three technical docs:
+
+- [`docs/architecture.md`](docs/architecture.md) — how it works under the hood
+- [`docs/design.md`](docs/design.md) — the design system
+- [`docs/features.md`](docs/features.md) — every feature and its status
+
+Then the original specs, in order:
 
 1. [`docs/00-vision.md`](docs/00-vision.md) — the soul, the psychology, the non-negotiable principles
 2. [`docs/01-product-spec.md`](docs/01-product-spec.md) — every feature, in detail

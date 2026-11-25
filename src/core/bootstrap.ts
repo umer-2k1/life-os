@@ -71,7 +71,9 @@ export async function ensureBootstrap(): Promise<void> {
   if (bootstrapped) return;
   bootstrapped = true;
 
-  if (process.env.SEED_DREAMS === "false") return;
+  // Demo dreams are opt-in only: `SEED_DREAMS=true pnpm db:seed`.
+  // Real goals are created from the app / MCP; an empty list must stay empty.
+  if (process.env.SEED_DREAMS !== "true") return;
   const dreams = ds.getRepository(Dream);
   const count = await dreams.count({ where: { user_id: ownerId } });
   if (count > 0) return;

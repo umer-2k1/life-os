@@ -73,6 +73,9 @@ const ON_TRACK = [
   "gym",
   "trained",
   "workout",
+  "worked",
+  "application",
+  "applications",
   "walked",
   "meditated",
   "planned",
@@ -87,14 +90,21 @@ const ON_TRACK = [
 ];
 
 const DREAM_HINTS: Array<{ words: string[]; title: string }> = [
-  { words: ["car", "drive", "vehicle"], title: "Dream Car" },
-  { words: ["umrah", "kaaba", "mecca", "makkah"], title: "Umrah" },
-  { words: ["playstation", "ps5", "console"], title: "PlayStation 5" },
-  { words: ["gaming pc", " pc ", "pc build", "gpu"], title: "Gaming PC" },
-  { words: ["laptop", "macbook"], title: "Laptop Upgrade" },
-  { words: ["save", "saved", "saving", "money", "income", "invest", "revenue"], title: "Financial Growth" },
-  { words: ["read", "book", "habit", "mindset", "discipline", "pray", "sleep"], title: "Personal Development" },
-  { words: ["client", "job", "career", "skill", "pitch", "interview", "work", "project"], title: "Career & Skills" },
+  { words: ["remote job", "remote", "applied", "apply", "application", "interview", "recruiter", "cv", "resume", "linkedin", "portfolio", "job"], title: "Remote Job" },
+  { words: ["16h", "16 hours", "deep work", "sprint"], title: "16h/Day — Remote Job Sprint" },
+  { words: ["freelanc", "client", "gig", "upwork", "fiverr", "invoice"], title: "Freelancing & Multiple Income" },
+  { words: ["car", "fortuner", "alto", "drive", "vehicle"], title: "Car — Toyota Fortuner" },
+  { words: ["umrah", "kaaba", "mecca", "makkah"], title: "Umrah — 2–3 People" },
+  { words: ["bangle", "jewelry", "jewellery"], title: "Pair of Gold Bangles" },
+  { words: ["playstation", "ps5", "console", "gaming pc", " pc ", "gpu"], title: "PS5 / Gaming PC" },
+  { words: ["macbook"], title: "MacBook — M1/M2, 32GB, 1TB" },
+  { words: ["mom", "mother"], title: "iPhone for Mom — 12/13, Pink" },
+  { words: ["iphone", "phone"], title: "iPhone 14 Pro Max" },
+  { words: ["save", "saved", "saving", "money", "income", "salary", "invest"], title: "$5,000 / Month Stable Income" },
+  { words: ["renovate", "renovation", "home", "house"], title: "Home Renovation" },
+  { words: ["content", "studio", "mic", "softbox", "record", "camera"], title: "Content Creation Setup" },
+  { words: ["instagram", "youtube", "followers", "reels", "shorts"], title: "Instagram 100k · YouTube 50k" },
+  { words: ["trip", "travel", "northern", "hunza", "skardu"], title: "Northern Areas Trip" },
 ];
 
 function splitActivities(raw: string): string[] {

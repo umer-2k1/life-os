@@ -39,6 +39,7 @@ export function scorePrompt(
     recent,
   )}.
 Rules:
+- #1 priority right now: landing a remote job within 3 months. Work that advances Remote Job, freelancing or income must score higher than unrelated tasks.
 - The score MUST be derived from TODAY's activities, never from the recent average.
 - 0 on-track activities → score must be 0-30.
 - Wrong: a greeting, "test", "hello", or "first message" is NOT an activity. If that is all there is, score 0-10 and say "No real update".

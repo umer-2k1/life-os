@@ -8,8 +8,7 @@ import {
   type InputKind,
 } from "@/db/entities";
 import { env } from "@/lib/env";
-import { todayISO } from "@/lib/dates";
-import { clamp } from "@/lib/utils";
+import { formatLongDate, todayISO } from "@/lib/dates";
 import {
   classifyRelevance,
   estimateWasteDays,
@@ -84,7 +83,7 @@ function trajectoryNote(
   previousScores: number[],
 ): string {
   if (!previousScores.length) {
-    return `Day one. ${streak > 0 ? `${streak}-day streak.` : "Start the streak."}`;
+    return `First entry. ${streak > 0 ? `${streak}-day streak.` : "Start the streak."}`;
   }
   const avg = Math.round(
     previousScores.reduce((a, b) => a + b, 0) / previousScores.length,
@@ -262,6 +261,20 @@ export async function logDay(input: {
     score = Math.min(score, 65);
   }
 
+  // The remote-job sprint is the #1 priority right now: weight that work higher.
+  const priorityById = new Map(dreams.map((d) => [d.id, d.priority]));
+  const priorityWork = allRows.filter(
+    (a) =>
+      a.relevance === "on_track" &&
+      ((a.dream_id && priorityById.get(a.dream_id) === "high") ||
+        /remote job|apply|applied|application|interview|recruit|cv|resume|linkedin|portfolio|client|freelanc/i.test(
+          a.text,
+        )),
+  ).length;
+  if (priorityWork > 0) {
+    score = Math.min(100, score + Math.min(15, priorityWork * 5));
+  }
+
   const fallbackDream =
     allRows.find((a) => a.dream_id)?.dream_id
       ? dreams.find((d) => d.id === allRows.find((a) => a.dream_id)!.dream_id)?.title
@@ -327,7 +340,6 @@ export type PendingCheckin = {
   open: boolean;
   date: string;
   question: string;
-  day: number;
   streak: number;
   score: number | null;
   asked_at: string | null;
@@ -337,19 +349,13 @@ export type PendingCheckin = {
 export async function pendingCheckin(date?: string): Promise<PendingCheckin> {
   const log = await ensureDailyLog(date);
   const streak = await getStreak();
-  const start = new Date("2026-01-01T00:00:00Z").getTime();
-  const day = clamp(
-    Math.floor((Date.now() - start) / 86_400_000) + 1,
-    1,
-    9999,
-  );
+  const label = formatLongDate(log.log_date);
   return {
     open: !log.answered,
     date: log.log_date,
     question: log.answered
-      ? "Already logged today. Come back tomorrow."
-      : `Day ${day}. What did you do today toward the money / the dreams? Voice or text.`,
-    day,
+      ? `Already logged for ${label}. Come back tomorrow.`
+      : `Today is ${label}. What did you do today toward the money / the dreams? Voice or text.`,
     streak: streak.current,
     score: log.answered ? log.score : null,
     asked_at: log.asked_at ? new Date(log.asked_at).toISOString() : null,

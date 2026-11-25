@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { ensureBootstrap } from "../src/core/bootstrap";
+import { seedDreams } from "../src/core/bootstrap";
 import { getDataSource } from "../src/db/data-source";
 
 async function main() {
@@ -9,7 +9,7 @@ async function main() {
   if (count > 0) {
     console.log(`Already ${count} dreams. Nothing seeded.`);
   } else {
-    await ensureBootstrap();
+    await seedDreams();
     const after = await ds.query("select count(*)::int as c from dreams");
     console.log(`✓ seeded ${after[0].c} dreams`);
   }

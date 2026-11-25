@@ -26,7 +26,22 @@ export const createDreamSchema = z.object({
   feeling: z.string().max(200).optional().nullable(),
 });
 
-export const updateDreamSchema = createDreamSchema.partial();
+// No defaults here: a PATCH must never silently reset priority/status.
+export const updateDreamSchema = z.object({
+  title: z.string().trim().min(1).max(120).optional(),
+  priority: prioritySchema.optional(),
+  status: dreamStatusSchema.optional(),
+  target_date: isoDate.optional().nullable(),
+  money_needed: z.union([z.string(), z.number()]).optional().nullable(),
+  importance_note: z.string().max(4000).optional().nullable(),
+  cover_image_url: z.string().url().optional().nullable().or(z.literal("").transform(() => null)),
+  glyph: z.string().max(8).optional().nullable(),
+  accent: z.string().max(80).optional().nullable(),
+  progress: z.number().int().min(0).max(100).optional(),
+  story: z.string().max(8000).optional().nullable(),
+  emotional_reason: z.string().max(8000).optional().nullable(),
+  feeling: z.string().max(200).optional().nullable(),
+});
 
 export const emotionSchema = z.object({
   story: z.string().max(8000).optional().nullable(),

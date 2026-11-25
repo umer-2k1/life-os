@@ -1,28 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
+
+let currentTime = Date.now();
+const listeners = new Set<() => void>();
+let timer: ReturnType<typeof setInterval> | null = null;
+
+function subscribe(onChange: () => void) {
+  listeners.add(onChange);
+  if (!timer) {
+    timer = setInterval(() => {
+      currentTime = Date.now();
+      for (const listener of listeners) listener();
+    }, 1000);
+  }
+  return () => {
+    listeners.delete(onChange);
+    if (listeners.size === 0 && timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  };
+}
+
+const getSnapshot = () => currentTime;
+/** 0 on the server so hydration always matches; the client fills it in. */
+const getServerSnapshot = () => 0;
 
 export function LiveClock({ className }: { className?: string }) {
-  const [now, setNow] = useState<Date>(() => new Date());
+  const now = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
-  useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
+  if (!now) {
+    return <span className={className} aria-hidden />;
+  }
 
-  const date = now.toLocaleDateString("en-US", {
+  const date = new Date(now);
+  const day = date.toLocaleDateString("en-US", {
     weekday: "short",
     month: "short",
     day: "numeric",
   });
-  const time = now.toLocaleTimeString("en-US", {
+  const time = date.toLocaleTimeString("en-US", {
     hour: "numeric",
     minute: "2-digit",
   });
 
   return (
-    <span className={className} suppressHydrationWarning>
-      {date} · <span className="tnum">{time}</span>
+    <span className={className}>
+      {day} · <span className="tnum">{time}</span>
     </span>
   );
 }

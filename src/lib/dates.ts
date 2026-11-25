@@ -60,6 +60,14 @@ export function formatRange(start: string, end: string): string {
   return `${left} – ${right}`;
 }
 
+export function formatLongDate(iso: string): string {
+  return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export function monthName(iso: string): string {
   return new Date(`${iso}T12:00:00Z`).toLocaleDateString("en-US", {
     month: "long",

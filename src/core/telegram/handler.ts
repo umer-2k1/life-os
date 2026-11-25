@@ -46,7 +46,7 @@ async function isLinked(chatId: string): Promise<boolean> {
 
 export function recapText(log: DailyLog, streak: number): string {
   const lines: string[] = [];
-  lines.push(`Day logged · Score ${log.score}/100 · 🔥 ${streak}-day`);
+  lines.push(`Logged · Score ${log.score}/100 · 🔥 ${streak}-day`);
   for (const b of (log.summary_bullets ?? []).slice(0, 5)) lines.push(b);
   if (log.trajectory_note) lines.push(`— ${log.trajectory_note}`);
   if (log.next_action) lines.push(`Next: ${log.next_action}`);
