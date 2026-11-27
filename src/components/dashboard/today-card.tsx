@@ -30,13 +30,13 @@ export function TodayCard({
           <p className="text-[12.5px] leading-snug text-muted">
             {answered
               ? "Logged. The number is the truth."
-              : "No log yet today."}
+              : "Today is still in progress."}
           </p>
           {!answered ? (
             <p className="mt-1 text-[11.5px] leading-snug text-faint">
-              Your bot asks at 12 AM — or{" "}
+              The daily ask reviews yesterday — or{" "}
               <Link href="/activity" className="text-gold-soft underline-offset-2 hover:underline">
-                log now
+                log today now
               </Link>
               .
             </p>

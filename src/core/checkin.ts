@@ -1,6 +1,6 @@
 import { getDataSource } from "@/db/data-source";
 import { TelegramLink } from "@/db/entities";
-import { todayISO } from "@/lib/dates";
+import { addDaysISO, todayISO } from "@/lib/dates";
 import { ensureDailyLog, markAsked, pendingCheckin } from "./logs";
 import { getProfile } from "./profile";
 import { getNotificationPrefs } from "./settings";
@@ -31,6 +31,25 @@ function inQuietHours(now: number, start: string, end: string): boolean {
   return now >= s || now < e;
 }
 
+/**
+ * Which day the open check-in is about.
+ * Ask before noon -> yesterday (the day that just ended).
+ * Ask in the evening -> today.
+ */
+export async function currentCheckinDate(): Promise<string> {
+  const [prefs, profile] = await Promise.all([getNotificationPrefs(), getProfile()]);
+  const today = todayISO(profile.timezone);
+  return toMinutes(prefs.daily_ask_time) < 12 * 60 ? addDaysISO(today, -1) : today;
+}
+
+/** Date a reply should be logged to: the open check-in, otherwise today. */
+export async function resolveCheckinDate(date?: string): Promise<string | undefined> {
+  if (date) return date;
+  const target = await currentCheckinDate();
+  const pending = await pendingCheckin(target);
+  return pending.open ? pending.date : undefined;
+}
+
 export type CronResult = {
   action: "answered" | "not-due" | "asked" | "re-asked" | "no-telegram" | "quiet";
   date: string;
@@ -42,7 +61,10 @@ export type CronResult = {
  */
 export async function runCheckinCron(): Promise<CronResult> {
   const [prefs, profile] = await Promise.all([getNotificationPrefs(), getProfile()]);
-  const date = todayISO(profile.timezone);
+  const today = todayISO(profile.timezone);
+  // A midnight/morning ask reviews the day that ended, not the one starting.
+  const date =
+    toMinutes(prefs.daily_ask_time) < 12 * 60 ? addDaysISO(today, -1) : today;
   const log = await ensureDailyLog(date);
 
   if (log.answered) return { action: "answered", date };

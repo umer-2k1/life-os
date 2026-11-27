@@ -1,9 +1,10 @@
 import { getDataSource } from "@/db/data-source";
 import { TelegramLink, type DailyLog } from "@/db/entities";
 import { env } from "@/lib/env";
-import { todayISO } from "@/lib/dates";
+import { formatLongDate, todayISO } from "@/lib/dates";
 import { getStreak } from "../scores";
 import { logDay, pendingCheckin } from "../logs";
+import { currentCheckinDate, resolveCheckinDate } from "../checkin";
 import { listDreams } from "../dreams";
 import { downloadFile, sendMessage, transcribeAudio } from "./api";
 
@@ -46,7 +47,7 @@ async function isLinked(chatId: string): Promise<boolean> {
 
 export function recapText(log: DailyLog, streak: number): string {
   const lines: string[] = [];
-  lines.push(`Logged · Score ${log.score}/100 · 🔥 ${streak}-day`);
+  lines.push(`Logged ${formatLongDate(log.log_date)} · Score ${log.score}/100 · 🔥 ${streak}-day`);
   for (const b of (log.summary_bullets ?? []).slice(0, 5)) lines.push(b);
   if (log.trajectory_note) lines.push(`— ${log.trajectory_note}`);
   if (log.next_action) lines.push(`Next: ${log.next_action}`);
@@ -64,7 +65,7 @@ export async function handleUpdate(update: Update): Promise<void> {
       await linkChat(chatId, username);
       await sendMessage(
         chatId,
-        "Linked. This chat is now your Life OS.\n\nSay what you did today — voice or text. I'll score it and price the waste.\n\n" +
+        "Linked. This chat is now your Life OS.\n\nReply with what you did that day — voice or text. I'll score it and price the waste.\n\n" +
           HELP,
       );
       return;
@@ -94,7 +95,9 @@ export async function handleUpdate(update: Update): Promise<void> {
     }
 
     await sendMessage(chatId, "Scoring it…");
-    const result = await logDay({ text: raw, input_kind: kind, mode: "append" });
+    // Reply to the open check-in (yesterday in the morning), not blindly today.
+    const date = await resolveCheckinDate();
+    const result = await logDay({ text: raw, date, input_kind: kind, mode: "append" });
     if (result.skipped) {
       await sendMessage(chatId, result.message ?? "That isn't an update. Try again.");
       return;
@@ -125,18 +128,21 @@ async function handleCommand(chatId: string, text: string): Promise<void> {
     return;
   }
   if (command === "/today") {
-    const pending = await pendingCheckin();
+    const pending = await pendingCheckin(await currentCheckinDate());
     await sendMessage(
       chatId,
       pending.open
         ? `${pending.question}\n\nStreak: ${pending.streak} days.`
-        : `Today is logged. Score ${pending.score ?? "—"}. Come back after midnight.`,
+        : `Already logged for ${formatLongDate(pending.date)}. Score ${pending.score ?? "—"}.`,
     );
     return;
   }
   if (command === "/score") {
-    const pending = await pendingCheckin();
-    await sendMessage(chatId, `Today: ${pending.open ? "not logged yet" : "logged"} · streak ${pending.streak}.`);
+    const pending = await pendingCheckin(await currentCheckinDate());
+    await sendMessage(
+      chatId,
+      `${formatLongDate(pending.date)}: ${pending.open ? "not logged yet" : "logged"} · streak ${pending.streak}.`,
+    );
     return;
   }
   if (command === "/dreams") {

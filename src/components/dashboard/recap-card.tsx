@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { formatLongDate } from "@/lib/dates";
 
 function tag(text: string): { label: string; className: string } {
   if (text.startsWith("🟢")) return { label: "ON", className: "text-green bg-[rgba(63,182,139,0.12)]" };
@@ -58,7 +59,7 @@ export function RecapCard({
           <b className="text-gold-soft">Next:</b> {next}
         </div>
       ) : null}
-      <p className="mt-2 text-[11px] text-faint">{date}</p>
+      <p className="mt-2 text-[11px] text-faint">{formatLongDate(date)}</p>
     </section>
   );
 }

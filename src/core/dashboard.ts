@@ -17,7 +17,8 @@ export type Dashboard = {
   profile: Profile;
   rollup: NorthStarRollup;
   dreams: Dream[];
-  today: { date: string; score: number | null; answered: boolean; bullets: string[]; next: string | null };
+  today: { date: string; score: number | null; answered: boolean };
+  recap: { date: string; score: number; bullets: string[]; next: string | null } | null;
   streak: { current: number; best: number };
   points: number;
   level: LevelInfo;
@@ -33,11 +34,13 @@ export async function getDashboard(): Promise<Dashboard> {
   await ensureBootstrap();
   const tz = env().TIMEZONE;
   const today = todayISO(tz);
+  const yesterday = addDaysISO(today, -1);
 
-  const [profile, dreams, day, streak, points, rollup] = await Promise.all([
+  const [profile, dreams, day, yesterdayDay, streak, points, rollup] = await Promise.all([
     getProfile(),
     listDreams({}),
     getDay(today),
+    getDay(yesterday),
     getStreak(),
     getTotalPoints(),
     savingsRollup(),
@@ -51,7 +54,16 @@ export async function getDashboard(): Promise<Dashboard> {
   const priorities = day.activities.filter((a) => a.column === "today");
   const suggested = priorities.length ? [] : await suggestPriorities(3);
 
-  const lastAnswered = day.log.answered ? day.log : null;
+  // The daily ask reviews yesterday; surface the most recent answered day.
+  const recapDay = day.log.answered ? day : yesterdayDay.log.answered ? yesterdayDay : null;
+  const recap = recapDay
+    ? {
+        date: recapDay.log.log_date,
+        score: recapDay.log.score,
+        bullets: recapDay.log.summary_bullets ?? [],
+        next: recapDay.log.next_action ?? null,
+      }
+    : null;
 
   const dreamPriorityRank = { high: 0, medium: 1, low: 2 } as const;
   const topDreams = active
@@ -69,11 +81,10 @@ export async function getDashboard(): Promise<Dashboard> {
     dreams: topDreams,
     today: {
       date: today,
-      score: lastAnswered ? day.log.score : null,
+      score: day.log.answered ? day.log.score : null,
       answered: day.log.answered,
-      bullets: day.log.summary_bullets ?? [],
-      next: day.log.next_action ?? null,
     },
+    recap,
     streak,
     points,
     level: levelFor(points),
@@ -82,6 +93,6 @@ export async function getDashboard(): Promise<Dashboard> {
     why: await pickResurfaceDream(active),
     priorities,
     suggested,
-    lastCheckinScore: lastAnswered ? lastAnswered.score : null,
+    lastCheckinScore: recap?.score ?? null,
   };
 }

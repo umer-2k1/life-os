@@ -2,7 +2,7 @@
 
 ## The loop (what actually changes behavior)
 
-1. **Midnight** — the bot asks: *"Day N. What did you do today toward the money / the dreams? Voice or text."*
+1. **Midnight / early morning** — the bot asks about **yesterday**: *"Report for Wednesday, November 25 — what did you do that day toward the money / the dreams? Voice or text."*
 2. You send **one voice note** (or text). That is the only required effort.
 3. The AI splits it into activities, marks each 🟢 / 🟡 / 🔴, prices waste in **days added**, and gives a score.
 4. You get a ≤5-bullet recap + one **Next** action.

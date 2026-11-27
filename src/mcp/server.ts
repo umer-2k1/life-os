@@ -14,6 +14,7 @@ import {
 } from "@/core/dreams";
 import { activitiesBetween, createActivity, updateActivity } from "@/core/activities";
 import { logDay, getDay, pendingCheckin, saveReflection } from "@/core/logs";
+import { currentCheckinDate, resolveCheckinDate } from "@/core/checkin";
 import { scoreRange, getStreak, getTotalPoints } from "@/core/scores";
 import { addSavingsEntry, getSavings, setSavingsTarget } from "@/core/savings";
 import { getProfile, updateProfile } from "@/core/profile";
@@ -197,9 +198,9 @@ export function createMcpServer(): McpServer {
   });
 
   // ── Check-in ──────────────────────────────────────────────────────────────
-  server.tool("get_pending_checkin", "Is today's check-in still open? Returns the question.", {}, async () => {
+  server.tool("get_pending_checkin", "Is the open check-in still unanswered? Returns the question and its date.", {}, async () => {
     try {
-      return text(await pendingCheckin());
+      return text(await pendingCheckin(await currentCheckinDate()));
     } catch (e) {
       return err(e);
     }
@@ -211,7 +212,8 @@ export function createMcpServer(): McpServer {
     { text: z.string(), date: z.string().optional() },
     async ({ text: body, date }) => {
       try {
-        const result = await logDay({ text: body, date, input_kind: "mcp" });
+        const target = await resolveCheckinDate(date);
+        const result = await logDay({ text: body, date: target, input_kind: "mcp" });
         return text({
           score: result.log.score,
           bullets: result.log.summary_bullets,

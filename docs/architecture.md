@@ -115,12 +115,16 @@ Money is stored in **minor units** (paisa/cents) as `bigint` + `currency`.
 1. GitHub Actions runs every hour: `POST /api/cron/check-ins` with `x-cron-secret`.
 2. `runCheckinCron()` loads prefs + profile.
 3. If today's log is already `answered` → stop.
-4. If never asked → send the question at/after `daily_ask_time`, mark `asked_at`.
+4. Work out **which day the ask is about**:
+   - ask time before noon → **yesterday** (the day that just ended)
+   - ask time in the evening → today
+   Then send the question at/after `daily_ask_time` and mark `asked_at`.
 5. If asked but unanswered → re-ask only when:
    - `now - last_ping_at >= reask_gap_hours`, and
    - the local time is **outside** quiet hours (quiet hours only block re-asks, not the first ask).
-6. Message text is **date-specific**:
-   `"Today is Wednesday, November 25. What did you do today toward the money / the dreams? Voice or text."`
+6. Message text names the day being reviewed:
+   `"Report for Wednesday, November 25 — what did you do that day toward the money / the dreams? Voice or text."`
+   Replies are logged to **that date**, not blindly to today.
 
 ### 5.2 Voice message path
 
@@ -170,7 +174,7 @@ raw text
   └─ 8. Reply: score, ≤5 bullets, one next action
 ```
 
-The first answer on any channel sets `answered=true`; every other channel then goes quiet until the next day.
+The first answer on any channel sets `answered=true` for **that date**; every other channel then goes quiet until the next day. A morning ask reviews yesterday, so the dashboard shows yesterday’s recap while today’s dial stays empty until today is logged.
 
 ---
 

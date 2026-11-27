@@ -34,9 +34,9 @@ export default async function DashboardPage() {
           dreamTitles={dreamTitles}
         />
         <RecapCard
-          bullets={data.today.bullets}
-          next={data.today.next}
-          date={data.today.date}
+          bullets={data.recap?.bullets ?? []}
+          next={data.recap?.next ?? null}
+          date={data.recap?.date ?? data.today.date}
         />
       </div>
 

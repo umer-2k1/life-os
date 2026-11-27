@@ -114,8 +114,12 @@ Empty states: no log → dial shows `—`; no dreams → prompt to add the first
 First answer on any channel sets `answered=true` and stops all re-asks until the next day.
 
 ### Ask rules
+- The ask reviews the **day that ended**:
+  - ask time before noon → yesterday
+  - ask time in the evening → today
 - Date-specific question, **no day counter**:
-  `"Today is Wednesday, November 25. What did you do today toward the money / the dreams? Voice or text."`
+  `"Report for Wednesday, November 25 — what did you do that day toward the money / the dreams? Voice or text."`
+- Replies are logged to that date (Telegram, API, MCP `answer_checkin`).
 - Asked at `daily_ask_time` (default 00:00 local).
 - Re-ask every `reask_gap_hours` (default 6).
 - Quiet hours suppress re-asks only, not the first ask.

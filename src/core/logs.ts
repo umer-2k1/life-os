@@ -354,8 +354,8 @@ export async function pendingCheckin(date?: string): Promise<PendingCheckin> {
     open: !log.answered,
     date: log.log_date,
     question: log.answered
-      ? `Already logged for ${label}. Come back tomorrow.`
-      : `Today is ${label}. What did you do today toward the money / the dreams? Voice or text.`,
+      ? `Already logged for ${label}.`
+      : `Report for ${label} — what did you do that day toward the money / the dreams? Voice or text.`,
     streak: streak.current,
     score: log.answered ? log.score : null,
     asked_at: log.asked_at ? new Date(log.asked_at).toISOString() : null,
